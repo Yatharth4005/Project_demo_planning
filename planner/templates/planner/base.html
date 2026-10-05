@@ -1,0 +1,58 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Forge SPM Planning{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'planner/app.css' %}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="logo" href="{% url 'dashboard' %}">
+        <span class="logo-mark"><i></i><i></i><i></i></span>
+        <span><b>FORGE</b><small>SPM PLANNING</small></span>
+      </a>
+      <p class="nav-heading">WORKSPACE</p>
+      <nav>
+        <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}"><span class="nav-icon">▦</span><span>Overview</span></a>
+        <a class="{% if active_page == 'btr' %}active{% endif %}" href="{% url 'btr_upload' %}"><span class="nav-icon">⇧</span><span>BTR Upload</span></a>
+        <a class="{% if active_page == 'campaigns' %}active{% endif %}" href="{% url 'campaign_create' %}"><span class="nav-icon">≡</span><span>Campaign Plans</span></a>
+        <a class="{% if active_page == 'casting' %}active{% endif %}" href="{% url 'casting_list' %}"><span class="nav-icon">◇</span><span>Casting Plans</span></a>
+      </nav>
+      <p class="nav-heading master-heading">MASTER DATA</p>
+      <nav>
+        {% if user.is_staff %}<a href="/admin/planner/rulemaster/"><span class="nav-icon">◫</span><span>Rule Masters</span></a>{% endif %}
+        <a href="/admin/"><span class="nav-icon">⚙</span><span>Settings</span></a>
+      </nav>
+      <div class="sidebar-status">
+        <span class="status-icon">✓</span>
+        <div><b>All systems operational</b><small>SQLite connected</small></div>
+      </div>
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button class="user-card" type="submit" title="Sign out">
+          <span class="avatar">{{ user.first_name|first|default:"P" }}{{ user.last_name|first|default:"L" }}</span>
+          <span><b>{{ user.get_full_name|default:user.username }}</b><small>SPM Planner · Sign out</small></span>
+        </button>
+      </form>
+    </aside>
+    <main class="main-area">
+      <div class="topbar">
+        <div><span class="plant-dot"></span> Global SPM Workspace <span>›</span></div>
+        <div><small>FY {% now "Y" %}–{% now "y" %}</small></div>
+      </div>
+      <div class="page-content">
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

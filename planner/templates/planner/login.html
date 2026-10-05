@@ -1,0 +1,56 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Forge SPM Planning</title>
+  <link rel="stylesheet" href="{% static 'planner/app.css' %}">
+</head>
+<body>
+<main class="login-shell">
+  <section class="login-story">
+    <div class="login-top">
+      <div class="logo">
+        <span class="logo-mark"><i></i><i></i><i></i></span>
+        <span><b>FORGE</b><small>SPM PLANNING</small></span>
+      </div>
+    </div>
+    <div class="story-copy">
+      <p class="eyebrow light">CAST BETTER. PLAN SMARTER.</p>
+      <h1>Precision planning<br>for every <em>pour.</em></h1>
+      <p>Transform demand into intelligent casting campaigns with one connected planning workspace.</p>
+      <div class="story-stats">
+        <div><strong>98.4%</strong><span>Planning accuracy</span></div>
+        <div><strong>14%</strong><span>Average yield uplift</span></div>
+        <div><strong>26h</strong><span>Saved per campaign</span></div>
+      </div>
+    </div>
+    <div class="furnace-art" aria-hidden="true">
+      <div class="art-line one"></div><div class="art-line two"></div><div class="art-line three"></div>
+      <div class="art-block b1"></div><div class="art-block b2"></div><div class="art-block b3"></div>
+    </div>
+    <p class="story-foot">Built for Special Profile Mills worldwide</p>
+  </section>
+  <section class="login-panel">
+    <div class="login-card">
+      <span class="secure-pill">SECURE ENTERPRISE ACCESS</span>
+      <h2>Welcome back</h2>
+      <p>Sign in to your planning workspace.</p>
+      {% if form.errors %}<div class="login-error">Your username or password is incorrect.</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <label for="id_username">USERNAME</label>
+        <input type="text" name="username" id="id_username" autocomplete="username" required autofocus>
+        <label for="id_password">PASSWORD</label>
+        <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <button class="primary-btn login-btn" type="submit">Sign in to workspace <span>→</span></button>
+      </form>
+      <div class="security-note"><span>✓</span> Protected with Django authentication and CSRF security</div>
+    </div>
+    <p class="login-legal">© {% now "Y" %} Forge Planning Systems&nbsp;&nbsp;·&nbsp;&nbsp; Privacy &nbsp;·&nbsp;&nbsp; Terms</p>
+  </section>
+</main>
+</body>
+</html>

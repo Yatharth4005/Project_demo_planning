@@ -1,0 +1,14 @@
+{% extends "planner/base.html" %}
+{% block title %}Casting Plans · Forge{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">PRODUCTION PLANNING</p><h1>Casting plans</h1><p>Review generated heat sequences and export rolling plan workbooks.</p></div><a class="primary-btn" href="{% url 'campaign_create' %}">Create new plan →</a></header>
+<article class="table-card cast-table">
+  <div class="section-title"><div><p class="eyebrow">ALL PLANS</p><h2>Plan register</h2></div></div>
+  <table><thead><tr><th>PLAN ID</th><th>SECTION</th><th>GRADE</th><th>ORDERS</th><th>CAST WEIGHT</th><th>YIELD</th><th>CREATED</th><th>STATUS</th></tr></thead>
+  <tbody>
+  {% for plan in plans %}
+    <tr><td><a href="{% url 'casting_detail' plan.id %}"><b>{{ plan.plan_number }}</b></a></td><td>{{ plan.campaign.section }}</td><td>{{ plan.campaign.grade }}</td><td>{{ plan.campaign.order_count }}</td><td>{{ plan.total_cast_tonnes }} T</td><td><b class="green">{{ plan.expected_yield_percent }}%</b></td><td>{{ plan.created_at|date:"d M Y" }}</td><td><span class="tag review">{{ plan.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="8" class="empty-cell">No casting plans generated yet.</td></tr>{% endfor %}
+  </tbody></table>
+</article>
+{% endblock %}

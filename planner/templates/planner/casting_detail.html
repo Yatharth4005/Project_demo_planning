@@ -1,0 +1,19 @@
+{% extends "planner/base.html" %}
+{% block title %}{{ plan.plan_number }} · Forge{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">WORKFLOW / STEP 04</p><h1>Casting plan</h1><p>Review optimized heat sequencing, billet allocation, and expected yield.</p></div><a class="primary-btn" href="{% url 'export_plan' plan.id %}">⇩ &nbsp; Export rolling plan</a></header>
+<div class="plan-banner">
+  <div><span>CP</span><div><small>PLAN ID</small><h2>{{ plan.plan_number }}</h2></div></div>
+  <div><small>CAMPAIGN</small><b>{{ plan.campaign.section }} / {{ plan.campaign.grade }}</b></div>
+  <div><small>TOTAL CAST</small><b>{{ plan.total_cast_tonnes }} T</b></div>
+  <div><small>EXPECTED YIELD</small><b class="green">{{ plan.expected_yield_percent }}%</b></div>
+  <span class="tag review">{{ plan.get_status_display }}</span>
+</div>
+<article class="table-card cast-table">
+  <div class="section-title"><div><p class="eyebrow">HEAT SEQUENCE</p><h2>Billet allocation plan</h2></div></div>
+  <table><thead><tr><th>SEQUENCE</th><th>HEAT / BATCH</th><th>GRADE</th><th>BILLETS</th><th>CAST WEIGHT</th><th>ORDER LOAD</th><th>YIELD</th></tr></thead>
+  <tbody>{% for heat in plan.heat_sequence %}
+    <tr><td><span class="sequence">{{ heat.sequence|stringformat:"02d" }}</span></td><td><b>{{ heat.batch }}</b></td><td>{{ heat.grade }}</td><td>{{ heat.billets }}</td><td>{{ heat.cast_weight|floatformat:2 }} T</td><td>{{ heat.order_load|floatformat:2 }} T</td><td><b class="green">{{ heat.yield|floatformat:1 }}%</b></td></tr>
+  {% endfor %}</tbody></table>
+</article>
+{% endblock %}

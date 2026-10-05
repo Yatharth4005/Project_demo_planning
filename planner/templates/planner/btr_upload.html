@@ -1,0 +1,35 @@
+{% extends "planner/base.html" %}
+{% block title %}Upload BTR · Forge{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">WORKFLOW / STEP 01</p><h1>Upload BTR workbook</h1><p>Import the latest billet-to-rolling demand sheet for validation and processing.</p></div></header>
+<form class="content-panel upload-panel" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="upload-intro"><span>▤</span><div><h2>Demand workbook</h2><p>Required columns: section, grade, and quantity. Order and due date are optional.</p></div></div>
+  <label class="dropzone" id="dropzone" for="id_workbook">
+    <span class="drop-icon">⇧</span>
+    <b id="file-name">Drop your BTR workbook here</b>
+    <p id="file-detail">or click to browse from your computer</p>
+    <small>XLSX, XLS or XLSM · Maximum 25 MB</small>
+    {{ form.workbook }}
+  </label>
+  {% for error in form.workbook.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+  <div class="validation-grid">
+    <div><b>✓</b><span><b>Automatic validation</b><small>Checks columns, formats and missing data</small></span></div>
+    <div><b>≡</b><span><b>Rule master matching</b><small>Maps sections, grades and LFA rules</small></span></div>
+    <div><b>◫</b><span><b>Secure processing</b><small>Workbook remains within your workspace</small></span></div>
+  </div>
+  <div class="panel-actions"><a class="secondary-btn" href="{% url 'dashboard' %}">Cancel</a><button class="primary-btn" type="submit">Validate & continue →</button></div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  const input = document.getElementById("id_workbook");
+  input.addEventListener("change", () => {
+    if (!input.files.length) return;
+    const file = input.files[0];
+    document.getElementById("file-name").textContent = file.name;
+    document.getElementById("file-detail").textContent = `${(file.size / 1024).toFixed(1)} KB · Ready for validation`;
+    document.getElementById("dropzone").classList.add("has-file");
+  });
+</script>
+{% endblock %}

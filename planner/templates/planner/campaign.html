@@ -1,0 +1,47 @@
+{% extends "planner/base.html" %}
+{% block title %}Campaign Planning · Forge{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div><p class="eyebrow">WORKFLOW / STEPS 02–03</p><h1>Campaign planning</h1><p>Select planning material and create an optimized rolling campaign.</p></div>
+  <span class="source-chip">✓ {{ upload.original_name }} · {{ upload.row_count }} orders</span>
+</header>
+<form class="content-panel campaign-layout" method="post">
+  {% csrf_token %}
+  <div class="form-column">
+    <p class="eyebrow">PLANNING MATERIAL</p><h2>Choose a section & grade</h2>
+    <label for="id_material">SECTION / STEEL GRADE</label>
+    {{ form.material }}
+    {% if summary %}
+    <div class="material-summary">
+      <div><small>DEMAND</small><b>{{ summary.demand|floatformat:1 }} T</b></div>
+      <div><small>ORDERS</small><b>{{ summary.orders }}</b></div>
+      <div><small>DELIVERY DATA</small><b>{% if summary.dates %}Available{% else %}Not supplied{% endif %}</b></div>
+    </div>
+    {% endif %}
+    <label>CAMPAIGN STRATEGY</label>
+    <div class="django-radio">{{ form.strategy }}</div>
+    <button class="primary-btn generate-btn" type="submit">Generate campaign plan →</button>
+  </div>
+  <div class="rule-preview">
+    <p class="eyebrow">MATCHED RULES</p><h3>{{ section|default:"Select material" }}</h3>
+    <div><span>LFA batch</span><b>{{ rule.lfa_batch_tonnes|default:"128.00" }} T</b></div>
+    <div><span>Billet length</span><b>{{ rule.billet_length_m|default:"11.80" }} m</b></div>
+    <div><span>Max. heats / batch</span><b>{{ rule.max_heats_per_batch|default:"8" }}</b></div>
+    <div><span>Target yield</span><b>{{ rule.target_yield_percent|default:"92.00" }}%</b></div>
+    <div><span>Steel grade</span><b>{{ grade|default:"—" }}</b></div>
+    <p class="rule-note">✓ Active rule master applied</p>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById("id_material").addEventListener("change", function () {
+    const form = this.form;
+    const strategy = form.querySelector('input[name="strategy"]:checked');
+    const url = new URL(window.location.href);
+    url.searchParams.set("material", this.value);
+    if (strategy) url.searchParams.set("strategy", strategy.value);
+    window.location.href = url.toString();
+  });
+</script>
+{% endblock %}

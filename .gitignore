@@ -1,0 +1,48 @@
+# Node / Frontend dependencies & build outputs
+node_modules/
+dist/
+build/
+.cache/
+.env
+.env.*
+!.env.example
+.vite/
+vite.config.*.timestamp-*
+*.tsbuildinfo
+*-debug.log*
+logs/
+*.log
+
+# Python / Django runtime data & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# SQLite database
+db.sqlite3
+db.sqlite3-journal
+
+# Django static and media uploads
+/media/
+/staticfiles/
+
+# IDE / OS metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Legacy / Platform metadata
+.figma/
+.plugins/
+.opencode-skills/

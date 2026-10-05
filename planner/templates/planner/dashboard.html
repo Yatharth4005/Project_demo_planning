@@ -1,0 +1,43 @@
+{% extends "planner/base.html" %}
+{% block title %}Overview · Forge{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div><p class="eyebrow">{% now "l, d F" %}</p><h1>Good morning, {{ user.first_name|default:user.username }}.</h1><p>Here’s what’s happening across your mill today.</p></div>
+  <a class="primary-btn" href="{% url 'btr_upload' %}">⇧ &nbsp; Upload new BTR</a>
+</header>
+<section class="metrics">
+  <article><span>OPEN DEMAND</span><strong>{{ open_demand|floatformat:0 }} <small>T</small></strong><p><b>Validated</b> workbook demand</p><i class="metric-glyph">≡</i></article>
+  <article><span>ACTIVE CAMPAIGNS</span><strong>{{ campaign_count|stringformat:"02d" }}</strong><p>Ready for production review</p><i class="metric-glyph">◇</i></article>
+  <article><span>AVG. YIELD</span><strong>{{ average_yield|floatformat:1 }}<small>%</small></strong><p><b>Calculated</b> from active plans</p><i class="metric-glyph">▦</i></article>
+  <article><span>RULE MASTERS</span><strong>SPM</strong><p><em>Section, grade & LFA rules</em></p><i class="metric-glyph warn">◫</i></article>
+</section>
+<section class="pipeline-card">
+  <div class="section-title"><div><p class="eyebrow">PLANNING WORKFLOW</p><h2>From demand to casting floor</h2></div><span>Python · Django · Pandas</span></div>
+  <div class="pipeline">
+    <div class="pipeline-step-wrap"><a class="pipeline-step current" href="{% url 'btr_upload' %}"><span>⇧</span><div><small>STEP 01</small><b>Upload BTR</b><p>Demand workbook</p></div><b>›</b></a></div>
+    <div class="pipeline-step-wrap"><a class="pipeline-step" href="{% url 'campaign_create' %}"><span>≡</span><div><small>STEP 02</small><b>Select Material</b><p>Section & grade</p></div><b>›</b></a></div>
+    <div class="pipeline-step-wrap"><a class="pipeline-step" href="{% url 'campaign_create' %}"><span>▦</span><div><small>STEP 03</small><b>Build Campaign</b><p>Batch sequencing</p></div><b>›</b></a></div>
+    <div class="pipeline-step-wrap"><a class="pipeline-step" href="{% url 'casting_list' %}"><span>◇</span><div><small>STEP 04</small><b>Casting Plan</b><p>Billet optimization</p></div><b>›</b></a></div>
+  </div>
+</section>
+<section class="lower-grid">
+  <article class="table-card">
+    <div class="section-title"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>Latest casting plans</h2></div><a href="{% url 'casting_list' %}">View all →</a></div>
+    <table><thead><tr><th>PLAN ID</th><th>SECTION</th><th>GRADE</th><th>TONNAGE</th><th>STATUS</th></tr></thead>
+      <tbody>
+      {% for plan in plans %}
+        <tr><td><a href="{% url 'casting_detail' plan.id %}"><b>{{ plan.plan_number }}</b></a></td><td>{{ plan.campaign.section }}</td><td>{{ plan.campaign.grade }}</td><td>{{ plan.total_cast_tonnes }} T</td><td><span class="tag review">{{ plan.get_status_display }}</span></td></tr>
+      {% empty %}
+        <tr><td colspan="5" class="empty-cell">No plans yet. Upload a BTR workbook to begin.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="yield-card">
+    <p class="eyebrow">YIELD PERFORMANCE</p><h2>Planning average</h2>
+    <div class="yield-chart"><div class="gauge"><span>{{ average_yield|floatformat:1 }}<small>%</small></span></div></div>
+    <div class="yield-legend"><span><i></i> Current yield <b>{{ average_yield|floatformat:1 }}%</b></span><span><i></i> Target yield <b>92.0%</b></span></div>
+    <p class="positive">→ Yield updates with every generated plan</p>
+  </article>
+</section>
+{% endblock %}

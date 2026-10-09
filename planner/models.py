@@ -1,7 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import FileExtensionValidator
 from django.db import models
-
 
 User = get_user_model()
 
@@ -28,82 +26,74 @@ class RuleMaster(models.Model):
         return f"{self.section} · {self.grade}"
 
 
-class BTRUpload(models.Model):
-    class Status(models.TextChoices):
-        UPLOADED = "uploaded", "Uploaded"
-        VALIDATED = "validated", "Validated"
-        FAILED = "failed", "Failed"
+class SCADAPLCTag(models.Model):
+    class DataType(models.TextChoices):
+        REAL = "REAL", "REAL (32-bit Float)"
+        DINT = "DINT", "DINT (32-bit Int)"
+        BOOL = "BOOL", "BOOL (Boolean)"
+        WORD = "WORD", "WORD (16-bit Hex)"
 
-    uploaded_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    workbook = models.FileField(
-        upload_to="btr/%Y/%m/",
-        validators=[FileExtensionValidator(["xlsx", "xls", "xlsm"])],
-    )
-    original_name = models.CharField(max_length=255)
-    status = models.CharField(
-        max_length=12, choices=Status.choices, default=Status.UPLOADED
-    )
-    row_count = models.PositiveIntegerField(default=0)
-    total_demand_tonnes = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0
-    )
-    validation_errors = models.JSONField(default=list, blank=True)
-    normalized_orders = models.JSONField(default=list, blank=True)
+    class Quality(models.TextChoices):
+        GOOD = "GOOD", "Good Signal"
+        BAD = "BAD", "Bad Signal"
+        UNCERTAIN = "UNCERTAIN", "Uncertain"
+
+    address = models.CharField(max_length=60, unique=True, help_text="e.g. DB100.DBD0")
+    name = models.CharField(max_length=120)
+    data_type = models.CharField(max_length=10, choices=DataType.choices, default=DataType.REAL)
+    value = models.CharField(max_length=100)
+    unit = models.CharField(max_length=20, blank=True, default="-")
+    quality = models.CharField(max_length=12, choices=Quality.choices, default=Quality.GOOD)
+    scan_ms = models.PositiveIntegerField(default=50)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["address"]
+
+    def __str__(self):
+        return f"{self.address} - {self.name}"
+
+
+class SCADAAlarmLog(models.Model):
+    class Severity(models.TextChoices):
+        CRITICAL = "CRITICAL", "Critical"
+        WARNING = "WARNING", "Warning"
+        INFO = "INFO", "Information"
+
+    alarm_id = models.CharField(max_length=30, unique=True)
+    tag = models.CharField(max_length=120)
+    severity = models.CharField(max_length=10, choices=Severity.choices, default=Severity.WARNING)
+    message = models.TextField()
+    location = models.CharField(max_length=120, default="Mill Line")
+    acknowledged = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
-        return self.original_name
+        return f"[{self.severity}] {self.alarm_id}: {self.message[:40]}"
 
 
-class CampaignPlan(models.Model):
-    class Strategy(models.TextChoices):
-        YIELD = "yield", "Yield optimized"
-        DELIVERY = "delivery", "Delivery priority"
-
-    btr = models.ForeignKey(
-        BTRUpload, on_delete=models.PROTECT, related_name="campaigns"
-    )
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    section = models.CharField(max_length=120)
-    grade = models.CharField(max_length=80)
-    strategy = models.CharField(
-        max_length=12, choices=Strategy.choices, default=Strategy.YIELD
-    )
-    demand_tonnes = models.DecimalField(max_digits=12, decimal_places=2)
-    order_count = models.PositiveIntegerField()
-    sequence = models.JSONField(default=list)
-    created_at = models.DateTimeField(auto_now_add=True)
+class SCADATelemetrySnapshot(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    mill_speed_m_s = models.FloatField(default=14.2)
+    shift_tonnage = models.FloatField(default=542.8)
+    power_kwh_ton = models.FloatField(default=182.4)
+    oee_overall = models.FloatField(default=94.6)
+    oee_availability = models.FloatField(default=97.2)
+    oee_performance = models.FloatField(default=98.1)
+    oee_quality = models.FloatField(default=99.3)
+    furnace_zone1_c = models.FloatField(default=1184.0)
+    furnace_zone2_c = models.FloatField(default=1241.0)
+    furnace_zone3_c = models.FloatField(default=1258.0)
+    caster_tundish_c = models.FloatField(default=1542.0)
+    caster_speed_m_min = models.FloatField(default=14.5)
+    stands_telemetry = models.JSONField(default=dict)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-timestamp"]
 
     def __str__(self):
-        return f"{self.section} / {self.grade}"
+        return f"Snapshot at {self.timestamp:%Y-%m-%d %H:%M:%S} - Mill Speed: {self.mill_speed_m_s} m/s"
 
-
-class CastingPlan(models.Model):
-    class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        REVIEW = "review", "In review"
-        COMPLETE = "complete", "Completed"
-
-    campaign = models.OneToOneField(
-        CampaignPlan, on_delete=models.CASCADE, related_name="casting_plan"
-    )
-    plan_number = models.CharField(max_length=30, unique=True)
-    total_cast_tonnes = models.DecimalField(max_digits=12, decimal_places=2)
-    expected_yield_percent = models.DecimalField(max_digits=5, decimal_places=2)
-    heat_sequence = models.JSONField(default=list)
-    status = models.CharField(
-        max_length=12, choices=Status.choices, default=Status.DRAFT
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return self.plan_number

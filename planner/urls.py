@@ -1,20 +1,15 @@
 from django.urls import path
-
 from . import views
-
 
 urlpatterns = [
     path("login/", views.PlannerLoginView.as_view(), name="login"),
     path("logout/", views.PlannerLogoutView.as_view(), name="logout"),
     path("", views.dashboard, name="dashboard"),
-    path("btr/upload/", views.btr_upload, name="btr_upload"),
-    path("campaigns/", views.campaign_create, name="campaign_create"),
-    path(
-        "campaigns/from/<int:upload_id>/",
-        views.campaign_create,
-        name="campaign_create",
-    ),
-    path("casting/", views.casting_list, name="casting_list"),
-    path("casting/<int:plan_id>/", views.casting_detail, name="casting_detail"),
-    path("casting/<int:plan_id>/export/", views.export_plan, name="export_plan"),
+    path("api/scada/live/", views.scada_live_api, name="scada_live_api"),
+    path("api/scada/alarms/", views.scada_alarms_api, name="scada_alarms_api"),
+    path("api/scada/alarms/ack/", views.scada_alarm_ack_api, name="scada_alarm_ack_api"),
+    path("api/scada/tags/", views.scada_tags_api, name="scada_tags_api"),
+    path("api/scada/reports/", views.scada_reports_api, name="scada_reports_api"),
 ]
+
+
